@@ -1,0 +1,221 @@
+# 盛岡市周辺の小児科マスタデータ
+#
+# 2026-11 時点で公開情報（医療機関検索サイト・市の資料・各院HP）をもとに作成。
+# 「verified: false」の項目は未確認です。来院前に必ず電話または公式HPで確認してください。
+#
+# 各フィールド:
+#   id               : 一意なID（英数字）
+#   name             : 医院名
+#   area             : 市町村 + 地区
+#   address / phone  : 住所 / 電話
+#   homepage         : 公式HP（不明なら null）
+#   reservation_url  : 順番受付・予約ページ（分かっていれば指定。null なら HP から自動検出）
+#   pediatric_only   : 小児科専門なら true（内科併設・総合病院は false）
+#   saturday         : 土曜診療あり
+#   web_reservation  : Web予約/順番受付あり
+#   reviews          : 口コミ取得元。caloo_url / epark_url / google_query
+#   manual_rating    : 自動取得できない場合の手入力 {rating: 4.0, count: 10, source: "..."}
+#   notes            : メモ
+#
+# 新しい医院は末尾に追記するだけで、次回の更新から反映されます。
+
+clinics:
+  - id: saito-ped
+    name: さいとう小児科クリニック
+    area: 盛岡市 月が丘
+    address: 岩手県盛岡市月が丘
+    phone: null
+    homepage: http://saito-ped.jp/
+    reservation_url: null
+    pediatric_only: true
+    saturday: null
+    web_reservation: true
+    reviews:
+      caloo_url: https://caloo.jp/hospitals/detail/2030000854
+      google_query: さいとう小児科クリニック 盛岡市
+    notes: 一般診察は当日の順番予約システム。予防接種・乳児健診・循環器は要予約。口コミ件数が多い。
+
+  - id: miura-kids
+    name: みうら小児科
+    area: 盛岡市 中野
+    address: 岩手県盛岡市中野
+    phone: null
+    homepage: https://www.miura-kids-clinic.jp/
+    reservation_url: null
+    pediatric_only: true
+    saturday: true
+    web_reservation: true
+    reviews:
+      google_query: みうら小児科 盛岡市 中野
+    notes: 院内の待ち時間短縮のためWEBによる順番予約制。
+
+  - id: morita-c
+    name: 森田小児科医院
+    area: 盛岡市 緑が丘
+    address: 岩手県盛岡市緑が丘
+    phone: null
+    homepage: https://www.morita-c.net/
+    reservation_url: null
+    pediatric_only: true
+    saturday: null
+    web_reservation: true
+    reviews:
+      caloo_url: https://caloo.jp/hospitals/detail/2030000166
+      google_query: 森田小児科医院 盛岡市
+    notes: ネット予約・WEB問診に対応。発熱外来あり。
+
+  - id: kobayashi-kodomo
+    name: 小林小児科クリニック
+    area: 盛岡市 三本柳
+    address: 岩手県盛岡市三本柳
+    phone: 019-638-0404
+    homepage: https://kobayashi-kodomo.org/
+    reservation_url: null
+    pediatric_only: true
+    saturday: null
+    web_reservation: true
+    reviews:
+      caloo_url: https://caloo.jp/hospitals/detail/2030000292
+      epark_url: https://epark.jp/shopinfo/hpl70936/
+      google_query: 小林小児科クリニック 盛岡市
+    notes: EPARK順番受付に対応。きれいで、待合室が分かれていると口コミで好評。
+
+  - id: maeta-kids
+    name: 前多小児科クリニック
+    area: 盛岡市 盛岡駅前通
+    address: 岩手県盛岡市盛岡駅前通9-10 丸善ビル5F
+    phone: 019-601-7478
+    homepage: https://www.maeta-kids.com/
+    reservation_url: null
+    pediatric_only: true
+    saturday: null
+    web_reservation: true
+    reviews:
+      google_query: 前多小児科クリニック 盛岡
+    notes: 盛岡駅から近い。小児科・児童精神科。ネット受付あり。
+
+  - id: mori-kodomo
+    name: 杜のこどもクリニック
+    area: 盛岡市 向中野
+    address: 岩手県盛岡市向中野三丁目10番6号
+    phone: 019-631-1160
+    homepage: null
+    reservation_url: null
+    pediatric_only: false
+    saturday: false
+    web_reservation: true
+    reviews:
+      google_query: 杜のこどもクリニック 盛岡市 向中野
+    notes: 小児科・内科。予約はWebのみ（掲載情報が古い可能性あり）。土日祝休診との掲載あり。
+
+  - id: nishijima-kodomo
+    name: 西島こどもクリニック
+    area: 盛岡市 上田
+    address: 岩手県盛岡市上田1丁目19-11
+    phone: 019-651-1369
+    homepage: null
+    reservation_url: null
+    pediatric_only: true
+    saturday: true
+    web_reservation: true
+    reviews:
+      google_query: 西島こどもクリニック 盛岡市 上田
+    notes: 小児科・アレルギー科・児童精神科。ネット予約あり（埋まっていることもあるとの口コミ）。
+
+  - id: nakamura-kodomo
+    name: 中村こどもクリニック
+    area: 盛岡市 上厨川
+    address: 岩手県盛岡市上厨川字杉原50-47
+    phone: 019-648-7711
+    homepage: null
+    reservation_url: null
+    pediatric_only: true
+    saturday: null
+    web_reservation: null
+    reviews:
+      google_query: 中村こどもクリニック 盛岡市
+    notes: EPARKに掲載あり。
+
+  - id: kanno-shonika
+    name: 菅野小児科医院
+    area: 盛岡市 山岸
+    address: 岩手県盛岡市山岸2丁目11-36
+    phone: 019-622-4448
+    homepage: null
+    reservation_url: null
+    pediatric_only: true
+    saturday: true
+    web_reservation: null
+    reviews:
+      google_query: 菅野小児科医院 盛岡市 山岸
+    notes: 土曜診療あり（掲載情報）。
+
+  - id: morioka-sakura
+    name: 盛岡さくらクリニック
+    area: 盛岡市 みたけ
+    address: 岩手県盛岡市みたけ
+    phone: null
+    homepage: https://www.morioka-sakura.net/
+    reservation_url: null
+    pediatric_only: false
+    saturday: null
+    web_reservation: null
+    reviews:
+      google_query: 盛岡さくらクリニック
+    notes: 内科・小児科・皮フ科・アレルギー科。オンライン診療・電話再診あり。
+
+  - id: kawakubo
+    name: 川久保病院（小児科）
+    area: 盛岡市 津志田
+    address: 岩手県盛岡市
+    phone: null
+    homepage: https://www.kawakubo-hos.jp/pages/145/
+    reservation_url: null
+    pediatric_only: false
+    saturday: null
+    web_reservation: null
+    reviews:
+      google_query: 川久保病院 盛岡
+    notes: 盛岡医療生協の病院の小児科。
+
+  - id: suko-kodomo
+    name: 巣子こどもクリニック
+    area: 滝沢市 狼久保
+    address: 岩手県滝沢市狼久保688-1
+    phone: 019-681-7217
+    homepage: null
+    reservation_url: null
+    pediatric_only: true
+    saturday: true
+    web_reservation: null
+    reviews:
+      google_query: 巣子こどもクリニック 滝沢市
+    notes: 医療法人山口クリニック。水・日・祝休診（掲載情報）。
+
+  - id: kentaro-kodomo
+    name: けんたろうこどもクリニック
+    area: 紫波郡矢巾町 西徳田
+    address: 岩手県紫波郡矢巾町大字西徳田第5地割2番地4
+    phone: 019-656-1011
+    homepage: null
+    reservation_url: null
+    pediatric_only: true
+    saturday: null
+    web_reservation: null
+    reviews:
+      google_query: けんたろうこどもクリニック 矢巾町
+    notes: 盛岡市資料（令和5年度）に掲載。
+
+  - id: shiwa-chuo
+    name: 紫波中央小児科
+    area: 紫波郡紫波町 紫波中央駅前
+    address: 岩手県紫波郡紫波町紫波中央駅前二丁目3番地94
+    phone: 019-672-1110
+    homepage: null
+    reservation_url: null
+    pediatric_only: true
+    saturday: null
+    web_reservation: null
+    reviews:
+      google_query: 紫波中央小児科 紫波町
+    notes: 盛岡市資料（令和5年度）に掲載。

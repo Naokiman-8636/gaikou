@@ -1,0 +1,46 @@
+name: 小児科リスト更新
+
+on:
+  # 診療時間帯（平日・土曜 8:00〜18:30 JST）に30分ごと。cron は UTC 表記。
+  schedule:
+    - cron: "*/30 23 * * 0-5"   # 8:00-8:59 JST (前日UTC 23時)
+    - cron: "*/30 0-9 * * 1-6"  # 9:00-18:59 JST
+  # GitHub の Actions 画面から「Run workflow」で手動更新もできる
+  workflow_dispatch:
+    inputs:
+      refresh_reviews:
+        description: "口コミも再取得する"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Playwright（JS描画の受付ページ用）
+        run: python -m playwright install --with-deps chromium
+      - name: 更新
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: |
+          python update.py --render ${{ inputs.refresh_reviews && '--refresh-reviews' || '' }}
+      - name: コミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs data
+          git diff --cached --quiet || git commit -m "Update pediatric clinic status"
+          git push
