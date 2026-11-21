@@ -1,0 +1,258 @@
+<title>盛岡 小児科ナビ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one narrow column of clinic cards under a sticky filter bar, phone first */
+:root{
+  --bg:#f4f6f8;--surface:#ffffff;--fg:#1c2430;--muted:#5f6b78;--line:#dde3ea;
+  --accent:#2f5fb3;--on-accent:#ffffff;--star:#b97500;
+  --ok:#17784a;--ok-bg:#e1f4ea;--off:#5f6b78;--off-bg:#e9edf1;--warn:#875c00;--warn-bg:#fbf0d2;--err:#b42318;--err-bg:#fde7e4;
+  --font-body:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --font-num:"Inter","Noto Sans JP",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161b;--surface:#1b2129;--fg:#e6eaef;--muted:#9aa5b1;--line:#2c3540;
+  --accent:#8db0ff;--on-accent:#0d1a33;--star:#f0b648;
+  --ok:#72d6a2;--ok-bg:#15392a;--off:#a6b0bb;--off-bg:#262e38;--warn:#ebc263;--warn-bg:#3a2f13;--err:#ff978c;--err-bg:#3f1c19;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161b;--surface:#1b2129;--fg:#e6eaef;--muted:#9aa5b1;--line:#2c3540;
+  --accent:#8db0ff;--on-accent:#0d1a33;--star:#f0b648;
+  --ok:#72d6a2;--ok-bg:#15392a;--off:#a6b0bb;--off-bg:#262e38;--warn:#ebc263;--warn-bg:#3a2f13;--err:#ff978c;--err-bg:#3f1c19;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--font-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{padding-block:12px;display:grid;gap:10px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+h1{font-size:1.2rem;margin:0;letter-spacing:.02em;text-wrap:balance}
+.upd{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.upd.stale{color:var(--err);font-weight:700}
+.live{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{font:inherit;font-size:.88rem;min-height:38px;padding:0 14px;border:0;background:var(--surface);color:var(--fg);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+select{font:inherit;font-size:16px;min-height:38px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--fg)}
+.chk{display:flex;align-items:center;gap:6px;font-size:.88rem;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--accent)}
+
+main.wrap{padding-block:14px 40px;display:grid;gap:12px}
+.notice{margin:0;border-radius:10px;padding:10px 12px;font-size:.86rem;background:var(--warn-bg);color:var(--warn)}
+#list{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:8px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card h2{font-size:1.04rem;margin:0;line-height:1.4;text-wrap:balance}
+.rank{font-family:var(--font-num);color:var(--muted);font-size:.8rem;margin-right:6px;font-variant-numeric:tabular-nums}
+.badge{white-space:nowrap;font-size:.78rem;padding:3px 10px;border-radius:999px;font-weight:700;flex:none}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-off{background:var(--off-bg);color:var(--off)}
+.b-warn{background:var(--warn-bg);color:var(--warn)}.b-err{background:var(--err-bg);color:var(--err)}
+.sub{margin:0;color:var(--muted);font-size:.84rem}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:.72rem;border:1px solid var(--line);border-radius:4px;padding:0 6px;letter-spacing:.03em}
+.status{margin:0;font-size:.9rem}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;font-size:.88rem}
+.score{font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.score b{font-size:1.35rem}
+.star{color:var(--star);font-weight:700}
+.muted{color:var(--muted)}
+.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:10px;border:1px solid var(--line);
+  text-decoration:none;color:var(--fg);font:inherit;font-weight:700;font-size:.9rem;background:var(--bg);cursor:pointer;padding:0 10px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tel{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.9rem;border:1px dashed var(--line);border-radius:10px;padding:6px 6px 6px 12px}
+.tel span{font-family:var(--font-num);font-variant-numeric:tabular-nums;user-select:all;font-weight:700}
+.tel button{min-height:34px;font-size:.8rem}
+details{font-size:.84rem}
+summary{color:var(--muted);cursor:pointer;min-height:30px;display:flex;align-items:center}
+.bd{margin:4px 0;padding-left:18px}
+.notes{margin:4px 0 0;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:24px 0;margin:0}
+footer{color:var(--muted);font-size:.8rem;display:grid;gap:8px}
+footer p{margin:0}
+.sos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.sos div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--fg)}
+.sos b{font-family:var(--font-num);user-select:all}
+@media (prefers-reduced-motion:no-preference){.card{transition:opacity .15s}}
+</style>
+
+<div class="bar"><div class="wrap">
+  <div class="head">
+    <div>
+      <h1>盛岡 小児科ナビ</h1>
+      <div class="upd" id="upd">データ: —</div>
+    </div>
+    <div class="live" id="live">保存版を表示中</div>
+  </div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="並び順">
+      <button type="button" id="sort-score" data-sort="score" aria-pressed="true">おすすめ順</button>
+      <button type="button" id="sort-now" data-sort="now" aria-pressed="false">今行きやすい順</button>
+    </div>
+    <select id="area" aria-label="エリア"><option value="">全エリア</option></select>
+    <label class="chk"><input type="checkbox" id="onlyopen">受付中のみ</label>
+  </div>
+</div></div>
+
+<main class="wrap">
+  <p class="notice" id="notice" hidden></p>
+  <section id="list" aria-live="polite"></section>
+  <p class="empty" id="empty" hidden>条件に合う医院がありません。絞り込みを外してください。</p>
+  <footer>
+    <p>受付状況は各医院のHP・順番受付ページを自動で読み取った結果です。誤りや遅れがあり得るため、受診前に必ず受付ページか電話で確認してください。</p>
+    <div class="sos">
+      <div>こども医療電話相談 <b>#8000</b></div>
+      <div>盛岡市夜間急患診療所 <b>019-654-1080</b></div>
+    </div>
+    <p>おすすめ度（100点）= 口コミ 60（件数で補正）+ Web順番受付 15 + 小児科専門 10 + 土曜診療 10 + 受付状況を確認できる 5</p>
+  </footer>
+</main>
+
+<script>
+const SNAPSHOT = /*SNAPSHOT*/null;
+
+const STATE = {
+  accepting:["受付中","b-ok"], closed:["受付終了","b-off"], full:["枠なし","b-off"],
+  unknown:["要確認","b-warn"], no_site:["HPなし","b-warn"], error:["取得失敗","b-err"]
+};
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+let data = SNAPSHOT, sort = store.get("sort") || "score";
+
+function el(tag, attrs = {}, ...kids){
+  const n = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else n.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k != null) n.append(k);
+  return n;
+}
+const mapUrl = c => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(c.name + " " + (c.address || c.area || ""));
+
+function copyTel(btn, num){
+  const done = () => { btn.textContent = "コピーしました"; setTimeout(() => btn.textContent = "番号をコピー", 1500); };
+  try {
+    navigator.clipboard.writeText(num).then(done, () => selectText(btn));
+  } catch(e){ selectText(btn); }
+}
+function selectText(btn){
+  const span = btn.parentElement.querySelector("span");
+  const r = document.createRange(); r.selectNodeContents(span);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  btn.textContent = "選択しました";
+}
+
+function card(c, rank){
+  const st = c.status || {};
+  const [label, cls] = STATE[st.state] || ["?","b-warn"];
+  const badge = label + (st.waiting != null ? `・待ち${st.waiting}人` : "");
+  const tags = [["小児科専門",c.pediatric_only],["Web受付",c.web_reservation],["土曜診療",c.saturday]]
+    .filter(t => t[1]).map(t => el("span",{class:"tag",text:t[0]}));
+  const rating = c.rating
+    ? [el("span",{class:"star",text:"★"+c.rating}), el("small",{text:`（${c.review_count}件）`})]
+    : [el("small",{class:"muted",text:"口コミ未取得"})];
+  const srcs = (c.reviews || []).filter(r => r.url).map(r => [" ", el("a",{href:r.url,target:"_blank",rel:"noopener",text:r.source})]);
+
+  const actions = [];
+  const res = st.source_url && st.source_url !== c.homepage ? st.source_url : null;
+  if (res) actions.push(el("a",{class:"btn primary",href:res,target:"_blank",rel:"noopener",text:"受付ページ"}));
+  actions.push(el("a",{class:"btn" + (res ? "" : " primary"),href:mapUrl(c),target:"_blank",rel:"noopener",text:"地図"}));
+  if (c.homepage) actions.push(el("a",{class:"btn",href:c.homepage,target:"_blank",rel:"noopener",text:"公式HP"}));
+
+  let tel = null;
+  if (c.phone) {
+    const b = el("button",{type:"button",class:"btn",text:"番号をコピー"});
+    b.addEventListener("click", () => copyTel(b, c.phone));
+    tel = el("div",{class:"tel"}, el("small",{class:"muted",text:"電話"}), el("span",{text:c.phone}), b);
+  }
+  const bd = Object.entries(c.breakdown || {}).map(([k,v]) => el("li",{}, k+" ", el("b",{text:String(v)})));
+  const sys = st.system ? `（${st.system}）` : "";
+
+  const n = el("article",{class:"card","data-area":(c.area||"").split(" ")[0],"data-state":st.state},
+    el("div",{class:"top"},
+      el("h2",{}, el("span",{class:"rank",text:String(rank)}), c.name),
+      el("span",{class:"badge "+cls,text:badge})),
+    el("p",{class:"sub",text:c.area || ""}),
+    tags.length ? el("div",{class:"tags"},tags) : null,
+    st.message && data.status_checked ? el("p",{class:"status",text:st.message + sys}) : null,
+    el("div",{class:"meta"},
+      el("span",{class:"score"}, el("b",{text:String(c.score)}), "点"),
+      el("span",{}, rating, srcs)),
+    el("div",{class:"actions"}, actions),
+    tel,
+    el("details",{}, el("summary",{text:"点数の内訳・メモ"}), el("ul",{class:"bd"},bd),
+      c.notes ? el("p",{class:"notes",text:c.notes}) : null)
+  );
+  return n;
+}
+
+function render(){
+  if (!data) return;
+  const area = $("area").value, only = $("onlyopen").checked;
+  const list = [...data.clinics].sort((a,b) => sort === "now" ? a.now_rank - b.now_rank : b.score - a.score);
+  const shown = list.filter(c => (!area || (c.area||"").split(" ")[0] === area) && (!only || c.status?.state === "accepting"));
+  $("list").replaceChildren(...shown.map((c,i) => card(c, i + 1)));
+  $("empty").hidden = shown.length > 0;
+  document.querySelectorAll("[data-sort]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sort === sort)));
+  store.set("sort", sort); store.set("area", area); store.set("onlyopen", only ? "1" : "0");
+  ago();
+}
+
+function fillAreas(){
+  const sel = $("area"), keep = store.get("area") || sel.value;
+  const areas = [...new Set(data.clinics.map(c => (c.area||"").split(" ")[0]))].sort();
+  sel.replaceChildren(el("option",{value:"",text:"全エリア"}), ...areas.map(a => el("option",{value:a,text:a})));
+  sel.value = areas.includes(keep) ? keep : "";
+}
+
+function ago(){
+  if (!data) return;
+  const gen = data.generated_at, at = new Date(gen.replace(" ","T") + ":00+09:00");
+  const m = Math.round((Date.now() - at) / 60000);
+  const txt = m < 1 ? "たった今" : m < 60 ? m + "分前" : m < 1440 ? Math.floor(m/60) + "時間前" : Math.floor(m/1440) + "日前";
+  const jst = new Date(Date.now() + 9*3600e3), h = jst.getUTCHours() + jst.getUTCMinutes()/60, d = jst.getUTCDay();
+  const open = d !== 0 && h >= 8.5 && h < 18.5;
+  const stale = data.status_checked && open && m > 75;
+  $("upd").textContent = `データ: ${txt}（${gen.slice(5)}）`;
+  $("upd").classList.toggle("stale", stale);
+  const n = $("notice");
+  if (!data.status_checked) {
+    n.hidden = false;
+    n.textContent = "受付状況はまだ取得していません。医院の情報・口コミ・おすすめ度だけを表示しています。受付状況は各医院の受付ページか電話で確認してください。";
+  } else if (stale) {
+    n.hidden = false;
+    n.textContent = `受付状況は${txt}のものです。今は変わっている可能性があります。`;
+  } else n.hidden = true;
+}
+
+document.querySelectorAll("[data-sort]").forEach(b => b.addEventListener("click", () => { sort = b.dataset.sort; render(); }));
+$("area").addEventListener("change", render);
+$("onlyopen").addEventListener("change", render);
+$("onlyopen").checked = store.get("onlyopen") === "1";
+if (data) { fillAreas(); render(); }
+setInterval(ago, 60000);
+
+// 最新データは共有データベースの snapshot/latest に入る（Claude が更新）。届けば差し替える
+(async () => {
+  const db = await window.claude?.use?.("db").catch(() => null);
+  if (!db) { $("live").textContent = "保存版を表示中"; return; }
+  $("live").textContent = "最新データを確認中…";
+  const timer = setTimeout(() => { $("live").textContent = "保存版を表示中"; }, 10000);
+  db.doc("snapshot/latest").onSnapshot(snap => {
+    clearTimeout(timer);
+    if (snap.exists && snap.data()?.clinics?.length) {
+      data = snap.data();
+      fillAreas(); render();
+      $("live").textContent = "自動で最新に更新";
+    } else {
+      $("live").textContent = "保存版を表示中";
+    }
+  }, () => { clearTimeout(timer); $("live").textContent = "保存版を表示中"; });
+})();
+</script>

@@ -106,3 +106,12 @@ python update.py
 - `clinics.yaml` の医院情報は2026年11月時点の公開情報をもとにしています。住所・診療時間・予約方法は変わることがあります。
 - 各サイトへの負荷を抑えるため、1回の実行で1ページあたり1リクエスト、間隔1秒にしています。
 - 夜間・休日: 盛岡市夜間急患診療所 019-654-1080 / こども医療電話相談 **#8000**
+
+## claude.ai アーティファクト版
+
+同じ一覧を claude.ai のアーティファクト（https://claude.ai/artifact/KJNty4SReXijPd94kejKq2）としても公開しています。
+
+- `artifact/template.html` … ページ本体。`artifact/build.py` が `data/latest.json` を「保存版」として埋め込み、`artifact/page.html` を作る
+- 最新データはアーティファクトのデータベース（`snapshot/latest`）に入れ、ページは開いている間も自動で差し替わる
+- アーティファクトは GitHub や医院サイトに直接アクセスできないため、更新は Claude が行う:
+  GitHub Actions が更新した `data/latest.json` → `python artifact/build.py` → `artifact/snapshot.json` をデータベースへ書き込み
