@@ -1,5 +1,8 @@
-# 取得したページ本文・抽出結果（第三者サイトの内容を含むためコミットしない）
-data/
+# 取得したページの本文（第三者サイトの内容そのもの）はコミットしない
+data/*/raw/
+data/*/text/
+data/*/fetch_log.json
+data/*/aggregated.json
 __pycache__/
 *.pyc
 .pytest_cache/
