@@ -64,6 +64,7 @@ def main() -> None:
 
     generated = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
     render.write_json(entries, generated, args.data / "latest.json")
+    render.write_json(entries, generated, args.out / "latest.json")  # スマホ画面の「最新にする」用
     render.write_html(entries, generated, args.out / "index.html")
     render.write_markdown(entries, generated, args.out / "ranking.md")
     print(f"\n出力: {args.out / 'index.html'} / {args.out / 'ranking.md'} / {args.data / 'latest.json'}")
