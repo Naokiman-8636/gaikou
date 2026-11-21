@@ -1,0 +1,6 @@
+anthropic>=2.12
+pydantic>=2
+requests
+beautifulsoup4
+PyYAML
+pytest

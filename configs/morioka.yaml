@@ -1,0 +1,93 @@
+# 盛岡市の外構業者リサーチ設定
+# 別の市で使うときは、このファイルを複製して city / sources / aliases を書き換えてください。
+
+city: 盛岡市
+prefecture: 岩手県
+slug: morioka
+
+# 抽出に使う Claude のモデルと思考の深さ（low / medium / high）
+model: claude-opus-5-5
+effort: medium
+
+# 各ランキングに何社まで載せるか
+top_n: 5
+
+# 読み込むページ。url の代わりに file: で手動保存した HTML / テキストも指定できます
+# （サイトがツールからの取得を拒否する場合など）。
+sources:
+  - id: mynavi
+    url: https://exterior.news.mynavi.jp/morioka-exterior/
+  - id: exbiz
+    url: https://exbiz.jp/japan/iwate-exterior/morioka/
+  - id: bisenn
+    url: https://media.bisenn.jp/gaikou/iwate/morioka/
+  - id: ienote
+    url: https://ienote.site/ex-morioka-shi/
+  - id: mammamia-iwate
+    url: https://mamma-mia2.co.jp/iwateken-gaikou/
+    note: 盛岡市版のページは404のため岩手県版を使用
+  - id: clovergarden
+    url: https://www.clovergarden-ex.co.jp/japan/city/morioka-exterior
+    note: サイト側がエラー（HTTP 500）を返すことがある
+  # 手動保存したページの例:
+  # - id: homepro
+  #   file: manual/homepro-morioka.html
+
+# 工事メニュー（id は英数字。label がレポートの見出しになります）
+menus:
+  - id: carport
+    label: カーポート・ガレージ
+    description: カーポート、ガレージ、駐輪場の屋根
+  - id: parking
+    label: 駐車場・土間コンクリート・舗装
+    description: 土間コンクリート、アスファルト、砂利敷き
+  - id: fence
+    label: フェンス・目隠し・塀
+    description: フェンス、目隠し、ブロック塀、境界塀
+  - id: gate
+    label: 門まわり・アプローチ
+    description: 門柱、門扉、ポスト、アプローチ、玄関まわり
+  - id: garden
+    label: 庭づくり・植栽・造園
+    description: 植栽、庭木、芝生、人工芝、剪定、造園
+  - id: deck
+    label: ウッドデッキ・テラス・サンルーム
+    description: ウッドデッキ、テラス屋根、サンルーム
+  - id: newbuild
+    label: 新築外構一式・デザイン外構
+    description: 新築時の外構全体の設計・施工、デザイン提案
+  - id: snow
+    label: 雪対策・融雪設備
+    description: ロードヒーティング、融雪、耐雪仕様、雪害対策
+
+# 同じ業者の表記ゆれ（左が表示名、右が別表記）
+aliases:
+  ワンガーデン: [東海エクステリア, ONE GARDEN, onegarden]
+  陽だまり工房: [陽だまり工房 盛岡支店, 陽だまり工房盛岡]
+  ガーデンプラス: [ガーデンプラス盛岡, ガーデンプラス 盛岡店]
+  ESTINA盛岡: [エスティナ盛岡, ESTINA]
+  ノースヤード: [NORTH YARD, northyard]
+  FREE COLORS: [フリーカラーズ]
+
+# ランキングから外すもの（一括見積もりサービスなど）
+exclude:
+  - タウンライフ
+  - タウンライフリフォーム
+  - ホームプロ
+  - リショップナビ
+
+# 採点の重み（合計1.0を目安に）
+weights:
+  presence: 0.25
+  rating: 0.35
+  record: 0.20
+  menu_fit: 0.20
+  negative_penalty: 0.03
+  negative_penalty_max: 0.10
+  pr_source_weight: 0.5
+
+# 口コミ点数の補正
+rating_prior:
+  mean: 4.0
+  weight: 10
+  unknown_count: 3
