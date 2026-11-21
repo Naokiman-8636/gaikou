@@ -1,1 +1,61 @@
 # gaikou
+
+A tool that researches exterior construction (外構工事) contractors and builds a recommendation list for each type of work.
+
+## What it does
+
+1. **Fetch** — reads the comparison and ranking pages listed in the config file and saves their text
+2. **Extract** — uses the Claude API to pull out, page by page, each contractor's name, location, supported work types, review scores and counts, track record, and positive and negative reviews
+3. **Aggregate and score** — merges variant spellings of a contractor's name into one entry, then scores each contractor on listings × reviews × track record × fit for the work type
+4. **Report** — writes `reports/<city>-<date>.md` (overall ranking, rankings by work type, profiles, and review details)
+
+Fetched page text and extraction results are cached under `data/` (not committed to git). Running it again does not call the API a second time.
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+export ANTHROPIC_API_KEY=sk-ant-...   # needed only for the extraction step
+```
+
+## Usage
+
+```bash
+python -m gaikou_research run configs/morioka.yaml      # run all steps
+python -m gaikou_research fetch configs/morioka.yaml    # fetch only
+python -m gaikou_research extract configs/morioka.yaml  # extract only (calls the API)
+python -m gaikou_research report configs/morioka.yaml   # report only (no API)
+python -m gaikou_research run configs/morioka.yaml --force  # ignore the cache and redo everything
+```
+
+Cost estimate: for Morioka (5 pages, about 250,000 characters) one run comes to roughly $1–2 in API fees (`claude-opus-5-5`).
+
+## Using it for another city
+
+Copy `configs/morioka.yaml` and change the following:
+
+- `city` / `prefecture` / `slug`
+- `sources` — the URLs of the pages to read. For a site that refuses automated fetching, save the page in a browser and point to it with `file: manual/xxx.html`
+- `aliases` — variant spellings of the same contractor (the canonical name on the left, the other spellings on the right)
+- `exclude` — names to leave out of the rankings, such as bulk-quote services
+- `menus` / `weights` — the work types and the scoring weights
+
+In a cloud environment you also need to allow each site's domain in the network settings.
+
+## Notes on the scores
+
+- Review scores and counts are used exactly as they appear on each page. Check the current ratings on Google Maps or similar before you hire anyone.
+- Ranking pages marked PR, or run by a listed contractor itself, count as half a listing (`pr_source_weight`).
+- A high score backed by few reviews is pulled toward 4.0 (`rating_prior`).
+
+## Tests
+
+```bash
+python -m pytest -q
+```
+
+The tests do not call the API.
+
+## Research results
+
+- [research/morioka-gaikou-recommendations.md](research/morioka-gaikou-recommendations.md) — the first manual research report (based on web search results)
