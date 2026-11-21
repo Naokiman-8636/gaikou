@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "*/30 23 * * 0-5"   # 8:00-8:59 JST (前日UTC 23時)
     - cron: "*/30 0-9 * * 1-6"  # 9:00-18:59 JST
+  # 医院データやプログラムを変更したときも更新・公開する
+  push:
+    branches: [main]
+    paths: [clinics.yaml, update.py, "pediatrics/**", "docs/**", .github/workflows/update.yml]
   # GitHub の Actions 画面から「Run workflow」で手動更新もできる
   workflow_dispatch:
     inputs:
@@ -15,14 +19,20 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: update
-  cancel-in-progress: false
+  cancel-in-progress: true   # 新しい更新が来たら古い実行は止める
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 20   # 万一止まっても20分で打ち切る（既定は6時間）
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,16 +41,28 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: Playwright（JS描画の受付ページ用）
+        timeout-minutes: 5
         run: python -m playwright install --with-deps chromium
       - name: 更新
+        timeout-minutes: 15
         env:
+          PYTHONUNBUFFERED: "1"   # 進み具合をログにすぐ表示する
           GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: |
           python update.py --render ${{ inputs.refresh_reviews && '--refresh-reviews' || '' }}
-      - name: コミット
+      - name: 結果を保存
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs data
-          git diff --cached --quiet || git commit -m "Update pediatric clinic status"
-          git push
+          git diff --cached --quiet && exit 0
+          git commit -m "Update pediatric clinic status"
+          git pull --rebase -X theirs origin main || true
+          git push || echo "push skipped (他の更新と重なったため次回に反映)"
+      # docs/ をそのまま GitHub Pages に公開（Settings → Pages の Source は「GitHub Actions」）
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deployment
+        uses: actions/deploy-pages@v4

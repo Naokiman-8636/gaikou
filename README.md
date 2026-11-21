@@ -57,11 +57,16 @@ python update.py
 
 ## 自動更新（GitHub Actions + GitHub Pages）
 
-`.github/workflows/update.yml` が診療時間帯（平日・土曜 8:00〜18:30 JST）に30分ごとに実行し、結果をコミットします。
+`.github/workflows/update.yml` が診療時間帯（平日・土曜 8:00〜18:30 JST）に30分ごとに実行し、
+結果をコミットして `docs/` を GitHub Pages に公開します（`clinics.yaml` などを変更したときも実行）。
 
-1. リポジトリの Settings → Pages で `Deploy from a branch`、ブランチ `main` / フォルダ `/docs` を選ぶ
-2. （任意）Settings → Secrets and variables → Actions に `GOOGLE_MAPS_API_KEY` を登録
-3. 今すぐ更新したいときは Actions タブ → 「小児科リスト更新」→ **Run workflow**
+- 1医院あたり60秒（`--timeout`）で応答がなければ打ち切って次へ進み、全体も20分で打ち切ります。
+- 実行ログに `(3/14) 医院名 ...` のように進み具合が表示されます。
+
+1. リポジトリの Settings → Actions → General → Workflow permissions を「Read and write permissions」にする
+2. Settings → Pages の **Source を「GitHub Actions」** にする（`Deploy from a branch` ではない）
+3. （任意）Settings → Secrets and variables → Actions に `GOOGLE_MAPS_API_KEY` を登録
+4. 今すぐ更新したいときは Actions タブ → 「小児科リスト更新」→ **Run workflow**
 
 ## 医院の追加・修正
 

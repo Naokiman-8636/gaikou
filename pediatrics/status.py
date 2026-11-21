@@ -168,8 +168,15 @@ def parse_status_html(html: str) -> Status:
     return parse_status_text(html_to_text(html))
 
 
+def _readable(st: Status) -> bool:
+    return st.state != "unknown" or st.waiting is not None or st.current_number is not None
+
+
 def check_clinic(clinic: dict, fetcher) -> Status:
-    """1医院ぶんの受付状況を取得する。"""
+    """1医院ぶんの受付状況を取得する。
+
+    まず普通にHTMLを取得し、読み取れなかったときだけ（--render 指定時）ブラウザで描画し直す。
+    """
     res_url = clinic.get("reservation_url")
     home = clinic.get("homepage")
     if not res_url and not home:
@@ -181,6 +188,11 @@ def check_clinic(clinic: dict, fetcher) -> Status:
         if page.error:
             return Status(state="error", message=f"HP取得失敗: {page.error}", source_url=home)
         links = find_reservation_links(page.html, page.final_url)
+        if not links and getattr(fetcher, "render", False):
+            rendered = fetcher.get(home, render=True)
+            if not rendered.error:
+                page = rendered
+                links = find_reservation_links(page.html, page.final_url)
         if not links:
             # HP自体に受付状況が直接書かれているケースもある
             st = parse_status_html(page.html)
@@ -192,10 +204,15 @@ def check_clinic(clinic: dict, fetcher) -> Status:
         res_url, system = links[0]
 
     page = fetcher.get(res_url)
+    st = parse_status_html(page.html) if not page.error else Status()
+    if not _readable(st) and getattr(fetcher, "render", False):
+        rendered = fetcher.get(res_url, render=True)
+        if not rendered.error:
+            page = rendered
+            st = parse_status_html(page.html)
     if page.error:
         return Status(state="error", message=f"予約ページ取得失敗: {page.error}",
                       system=system, source_url=res_url)
-    st = parse_status_html(page.html)
     st.system = system or identify_system(page.final_url)
     st.source_url = page.final_url
     if not st.message:
